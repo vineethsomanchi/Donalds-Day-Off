@@ -1,14 +1,13 @@
 class Controller {
 
     /* ---------- CONSTRUCTOR ----------*/
-    constructor(canvas, context, backgroundImage, slingX, slingY, targetCount) {
+    constructor(canvas, context, backgroundImage, trumpSprite, slingX, slingY, targetCount) {
         this.canvas = canvas;
         this.context = context;
         this.canvasWidth = canvas.width;
         this.canvasHeight = canvas.height;
         this.backgroundImage = backgroundImage;
-        this.trumpSprite = new Image();
-        this.trumpSprite.src = "assets/still.png";
+        this.trumpSprite = trumpSprite;
         // this.targetImage = new Image();
         // this.targetImage.src = "assets/icon.png"
         this.trumpSize = 256
@@ -47,6 +46,7 @@ class Controller {
         this.start = this.start.bind(this);
         this.move = this.move.bind(this);
         this.loop = this.loop.bind(this);
+
     }
 
 
@@ -140,9 +140,8 @@ class Controller {
     //Main game loop
     loop() {
         this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight); //Clear canvas
-        this.backgroundImage.onload = () => {
-            this.context.drawImage(this.backgroundImage, this.screenOffset, 0, this.canvasWidth, this.canvasHeight, 0, 0, this.canvasWidth, this.canvasHeight); //Draw background with offset
-        }
+        this.context.drawImage(this.backgroundImage, this.screenOffset, 0, this.canvasWidth, this.canvasHeight, 0, 0, this.canvasWidth, this.canvasHeight); //Draw background with offset
+        this.context.drawImage(this.trumpSprite, this.frame, this.canvasHeight, this.trumpSize, this.trumpSize, this.x - this.screenOffset, this.y, this.trumpSize / 2, this.trumpSize / 2);
 
         //When stretching shot, draw line from top of shot to center of character
         if (this.mode === 'stretch') {
@@ -161,10 +160,7 @@ class Controller {
             if (this.y > this.canvasWidth) this.newGame(); //If out of bounds, call newTrump
         }
 
-        //Draw Trump
-        this.trumpSprite.onload = () => {
-            this.context.drawImage(this.trumpSprite, this.frame, this.canvasHeight, this.trumpSize, this.trumpSize, this.x - this.screenOffset, this.y, this.trumpSize/2, this.trumpSize/2);
-        }
+        
 
         // //Draw targets
         // for (let i = 0; i < this.targetCount; i++) {

@@ -86,6 +86,66 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./node_modules/os-browserify/browser.js":
+/*!***********************************************!*\
+  !*** ./node_modules/os-browserify/browser.js ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+exports.endianness = function () { return 'LE' };
+
+exports.hostname = function () {
+    if (typeof location !== 'undefined') {
+        return location.hostname
+    }
+    else return '';
+};
+
+exports.loadavg = function () { return [] };
+
+exports.uptime = function () { return 0 };
+
+exports.freemem = function () {
+    return Number.MAX_VALUE;
+};
+
+exports.totalmem = function () {
+    return Number.MAX_VALUE;
+};
+
+exports.cpus = function () { return [] };
+
+exports.type = function () { return 'Browser' };
+
+exports.release = function () {
+    if (typeof navigator !== 'undefined') {
+        return navigator.appVersion;
+    }
+    return '';
+};
+
+exports.networkInterfaces
+= exports.getNetworkInterfaces
+= function () { return {} };
+
+exports.arch = function () { return 'javascript' };
+
+exports.platform = function () { return 'browser' };
+
+exports.tmpdir = exports.tmpDir = function () {
+    return '/tmp';
+};
+
+exports.EOL = '\n';
+
+exports.homedir = function () {
+	return '/'
+};
+
+
+/***/ }),
+
 /***/ "./src/js/controller.js":
 /*!******************************!*\
   !*** ./src/js/controller.js ***!
@@ -105,7 +165,7 @@ var Controller =
 /*#__PURE__*/
 function () {
   /* ---------- CONSTRUCTOR ----------*/
-  function Controller(canvas, context, backgroundImage, slingX, slingY, targetCount) {
+  function Controller(canvas, context, backgroundImage, trumpSprite, slingX, slingY, targetCount) {
     _classCallCheck(this, Controller);
 
     this.canvas = canvas;
@@ -113,8 +173,7 @@ function () {
     this.canvasWidth = canvas.width;
     this.canvasHeight = canvas.height;
     this.backgroundImage = backgroundImage;
-    this.trumpSprite = new Image();
-    this.trumpSprite.src = "assets/still.png"; // this.targetImage = new Image();
+    this.trumpSprite = trumpSprite; // this.targetImage = new Image();
     // this.targetImage.src = "assets/icon.png"
 
     this.trumpSize = 256;
@@ -251,15 +310,11 @@ function () {
   }, {
     key: "loop",
     value: function loop() {
-      var _this = this;
-
       this.context.clearRect(0, 0, this.canvasWidth, this.canvasHeight); //Clear canvas
 
-      this.backgroundImage.onload = function () {
-        _this.context.drawImage(_this.backgroundImage, _this.screenOffset, 0, _this.canvasWidth, _this.canvasHeight, 0, 0, _this.canvasWidth, _this.canvasHeight); //Draw background with offset
+      this.context.drawImage(this.backgroundImage, this.screenOffset, 0, this.canvasWidth, this.canvasHeight, 0, 0, this.canvasWidth, this.canvasHeight); //Draw background with offset
 
-      }; //When stretching shot, draw line from top of shot to center of character
-
+      this.context.drawImage(this.trumpSprite, this.frame, this.canvasHeight, this.trumpSize, this.trumpSize, this.x - this.screenOffset, this.y, this.trumpSize / 2, this.trumpSize / 2); //When stretching shot, draw line from top of shot to center of character
 
       if (this.mode === 'stretch') {
         this.context.beginPath();
@@ -280,12 +335,7 @@ function () {
         this.counter++; //How many frames of elapsed since release
 
         if (this.y > this.canvasWidth) this.newGame(); //If out of bounds, call newTrump
-      } //Draw Trump
-
-
-      this.trumpSprite.onload = function () {
-        _this.context.drawImage(_this.trumpSprite, _this.frame, _this.canvasHeight, _this.trumpSize, _this.trumpSize, _this.x - _this.screenOffset, _this.y, _this.trumpSize / 2, _this.trumpSize / 2);
-      }; // //Draw targets
+      } // //Draw targets
       // for (let i = 0; i < this.targetCount; i++) {
       //     let target = targets[i];
       //     this.context.drawImage(this.targets, 200 * (2 + this.target.alive), this.canvasHeight, 200, 200, this.target.x - this.screenOffset, this.target.y, 200, 200);
@@ -320,6 +370,9 @@ function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _js_controller__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./js/controller */ "./src/js/controller.js");
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! os */ "./node_modules/os-browserify/browser.js");
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_1__);
+
  //Fit canvas to container
 
 function fitToContainer(canvas) {
@@ -336,12 +389,23 @@ window.addEventListener("DOMContentLoaded", function () {
   var context = canvas.getContext('2d');
   fitToContainer(canvas);
   var backgroundImg = new Image();
+  var trumpImg = new Image();
   backgroundImg.src = "assets/golf-background.jpg";
-  var control = new _js_controller__WEBPACK_IMPORTED_MODULE_0__["default"](canvas, context, backgroundImg, 400, 200, 5);
+  trumpImg.src = "assets/still.png";
+  var control = new _js_controller__WEBPACK_IMPORTED_MODULE_0__["default"](canvas, context, backgroundImg, trumpImg, 400, 200, 5);
   canvas.addEventListener('mousedown', control.mouseDown);
   canvas.addEventListener('mousemove', control.mouseMove);
   canvas.addEventListener('mouseup', control.up);
-  control.loop();
+
+  var loaded = function loaded() {
+    if (backgroundImg.complete && trumpImg.complete) {
+      control.loop();
+    }
+
+    window.requestAnimationFrame(loaded);
+  };
+
+  backgroundImg.onload = loaded(); // trumpImg.onload = loaded()
 }); // function fitToContainer(canvas) {
 //     canvas.style.width = '100%';
 //     canvas.style.height = '100%';

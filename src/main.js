@@ -1,4 +1,5 @@
 import Controller from "./js/controller";
+import { loadavg } from "os";
 
 //Fit canvas to container
 function fitToContainer(canvas) {
@@ -18,13 +19,28 @@ window.addEventListener("DOMContentLoaded", () => {
     fitToContainer(canvas);
 
     let backgroundImg = new Image();
+    let trumpImg = new Image();
     backgroundImg.src = "assets/golf-background.jpg";
+    trumpImg.src = "assets/still.png"
 
-    let control = new Controller (canvas, context, backgroundImg, 400, 200, 5)
+    let control = new Controller (canvas, context, backgroundImg, trumpImg, 400, 200, 5)
     canvas.addEventListener('mousedown', control.mouseDown)
     canvas.addEventListener('mousemove', control.mouseMove)
     canvas.addEventListener('mouseup', control.up)
-    control.loop();
+
+    const loaded = () => {
+        if(backgroundImg.complete && trumpImg.complete) {
+            control.loop();
+        }
+
+        window.requestAnimationFrame(loaded)
+    }
+    
+    backgroundImg.onload = loaded()
+    // trumpImg.onload = loaded()
+
+
+    
 })
     
 
