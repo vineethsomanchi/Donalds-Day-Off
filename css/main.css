@@ -86,12 +86,13 @@
 }
 
 
-
 .canvas-container {
     height: 96.5%;
     width: 90%;
+    position: relative;
     background-color: white;
 } 
+
 
 
 
