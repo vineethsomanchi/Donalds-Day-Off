@@ -1,5 +1,4 @@
 import Controller from "./js/controller";
-import { loadavg } from "os";
 
 //Fit canvas to container
 function fitToContainer(canvas) {
